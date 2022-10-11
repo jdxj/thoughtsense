@@ -51,7 +51,10 @@ func (s *Session) Data(r io.Reader) error {
 		buf = bytes.NewBuffer(nil)
 	)
 
+	subject := "Subject"
+	rr.Header.Get(subject)
 	buf.WriteString(fmt.Sprintf("from: %s, to: %s\n", s.from, s.to))
+	buf.WriteString(fmt.Sprintf("%s: %s\n", subject, rr.Header.Get(subject)))
 
 	for p, e = rr.NextPart(); e == nil; p, e = rr.NextPart() {
 		d, err := io.ReadAll(p.Body)
