@@ -16,7 +16,7 @@ spec:
     spec:
       containers:
         - name: thoughtsense-c
-          image: jdxj/thoughtsense:test-ba69dc5
+          image: jdxj/thoughtsense:test-c0e4bff
           command: [ "/thoughtsense/thoughtsense.out" ]
           args: [ "-conf", "/thoughtsense/conf.d/conf.yaml" ]
           volumeMounts:
