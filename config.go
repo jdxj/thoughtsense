@@ -1,6 +1,7 @@
 package main
 
 import (
+	"flag"
 	"os"
 
 	"gopkg.in/yaml.v3"
@@ -15,8 +16,14 @@ type config struct {
 	Port   int    `yaml:"port"`
 }
 
+var (
+	path = flag.String("conf", "conf.yaml", "config path")
+)
+
 func readConfig() {
-	f, err := os.Open("./conf.yaml")
+	flag.Parse()
+
+	f, err := os.Open(*path)
 	if err != nil {
 		panic(err)
 	}

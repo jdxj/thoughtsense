@@ -1,0 +1,12 @@
+apiVersion: v1
+kind: Service
+metadata:
+  name: thoughtsense-svc
+spec:
+  type: NodePort
+  ports:
+    - port: 30082
+      targetPort: 30082
+      nodePort: 30082
+  selector:
+    app: thoughtsense

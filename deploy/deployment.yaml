@@ -1,0 +1,33 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: thoughtsense-dep
+  namespace: thoughtsense
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: thoughtsense
+  template:
+    metadata:
+      name: thoughtsense-temp
+      labels:
+        app: thoughtsense
+    spec:
+      containers:
+        - name: thoughtsense-c
+          image: jdxj/thoughtsense:test-ba69dc5
+          command: [ "/thoughtsense/thoughtsense.out" ]
+          args: [ "-conf", "/thoughtsense/conf.d/conf.yaml" ]
+          volumeMounts:
+            - mountPath: /thoughtsense/conf.d
+              name: thoughtsense-conf
+          env:
+            - name: POD_NAME
+              valueFrom:
+                fieldRef:
+                  fieldPath: metadata.name
+      volumes:
+        - name: thoughtsense-conf
+          secret:
+            secretName: thoughtsense-conf
