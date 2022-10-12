@@ -1,6 +1,9 @@
 package main
 
 import (
+	"io"
+
+	"github.com/emersion/go-message/mail"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
 )
 
@@ -16,10 +19,56 @@ func newTGBot() {
 	}
 }
 
-func sendMsg(txt string) {
-	msg := tgbotapi.NewMessage(conf.ChatID, txt)
+func sendMsg(msg tgbotapi.Chattable) {
+	if msg == nil {
+		return
+	}
+
 	_, err := bot.Send(msg)
 	if err != nil {
 		logger.Errorf("sendMsg err: %s", err)
 	}
+}
+
+func sendTxtMsg(txt string) {
+	msg := tgbotapi.NewMessage(conf.ChatID, txt)
+	sendMsg(msg)
+}
+
+func newMsg(part *mail.Part) (c tgbotapi.Chattable) {
+	ct := part.Header.Get("Content-Type")
+	switch ct {
+	case "text/plain":
+		d, err := io.ReadAll(part.Body)
+		if err != nil {
+			logger.Errorf("read text/plain err: %s", err)
+			return
+		}
+		c = tgbotapi.NewMessage(conf.ChatID, string(d))
+
+	case "text/html":
+		d, err := io.ReadAll(part.Body)
+		if err != nil {
+			logger.Errorf("read text/html err: %s", err)
+			return
+		}
+		msg := tgbotapi.NewMessage(conf.ChatID, string(d))
+		msg.ParseMode = "HTML"
+		return msg
+
+	case "application/octet-stream":
+		switch h := part.Header.(type) {
+		case *mail.AttachmentHeader:
+			filename, err := h.Filename()
+			if err != nil {
+				logger.Warnf("get filename err: %s", err)
+			}
+
+			c = tgbotapi.NewDocument(conf.ChatID, tgbotapi.FileReader{
+				Name:   filename,
+				Reader: part.Body,
+			})
+		}
+	}
+	return
 }

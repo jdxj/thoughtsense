@@ -55,32 +55,13 @@ func (s *Session) Data(r io.Reader) error {
 	rr.Header.Get(subject)
 	buf.WriteString(fmt.Sprintf("from: %s, to: %s\n", s.from, s.to))
 	buf.WriteString(fmt.Sprintf("%s: %s\n", subject, rr.Header.Get(subject)))
+	sendTxtMsg(buf.String())
 
 	for p, e = rr.NextPart(); e == nil; p, e = rr.NextPart() {
-		d, err := io.ReadAll(p.Body)
-		if err != nil {
-			buf.WriteString(fmt.Sprintf("read part body err: %s\n", err))
-			continue
-		}
-
-		var m map[string][]string
-		switch h := p.Header.(type) {
-		case *mail.InlineHeader:
-			m = h.Map()
-		case *mail.AttachmentHeader:
-			m = h.Map()
-		}
-		for k, v := range m {
-			buf.WriteString(fmt.Sprintf("%s: %v\n", k, v))
-		}
-		buf.WriteString(fmt.Sprintf("%s\n", d))
+		sendMsg(newMsg(p))
 	}
 	if e != nil && e != io.EOF {
 		logger.Infof("next part err: %s", err)
-	}
-	if buf.Len() != 0 {
-		sendMsg(buf.String())
-		logger.Debugf("mail: %s", buf.String())
 	}
 	return nil
 }
