@@ -16,3 +16,7 @@ func TestSendMsg(t *testing.T) {
 
 	sendMsg("abc")
 }
+
+func TestLogger(t *testing.T) {
+	logger.Debugf("dd: %s", "abc")
+}

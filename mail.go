@@ -62,13 +62,25 @@ func (s *Session) Data(r io.Reader) error {
 			buf.WriteString(fmt.Sprintf("read part body err: %s\n", err))
 			continue
 		}
+
+		var m map[string][]string
+		switch h := p.Header.(type) {
+		case *mail.InlineHeader:
+			m = h.Map()
+		case *mail.AttachmentHeader:
+			m = h.Map()
+		}
+		for k, v := range m {
+			buf.WriteString(fmt.Sprintf("%s: %v\n", k, v))
+		}
 		buf.WriteString(fmt.Sprintf("%s\n", d))
 	}
 	if e != nil && e != io.EOF {
-		fmt.Printf("next part err: %s", err)
+		logger.Infof("next part err: %s", err)
 	}
 	if buf.Len() != 0 {
 		sendMsg(buf.String())
+		logger.Debugf("mail: %s", buf.String())
 	}
 	return nil
 }
