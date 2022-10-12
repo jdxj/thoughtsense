@@ -2,6 +2,7 @@ package main
 
 import (
 	"io"
+	"strings"
 
 	"github.com/emersion/go-message/mail"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
@@ -37,7 +38,11 @@ func sendTxtMsg(txt string) {
 
 func newMsg(part *mail.Part) (c tgbotapi.Chattable) {
 	ct := part.Header.Get("Content-Type")
-	logger.Debugf("content type: %s", ct)
+	i := strings.Index(ct, ";")
+	if i < 0 {
+		return
+	}
+	ct = ct[:i]
 	switch ct {
 	case "text/plain":
 		d, err := io.ReadAll(part.Body)
