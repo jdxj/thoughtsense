@@ -37,6 +37,7 @@ func sendTxtMsg(txt string) {
 
 func newMsg(part *mail.Part) (c tgbotapi.Chattable) {
 	ct := part.Header.Get("Content-Type")
+	logger.Debugf("content type: %s", ct)
 	switch ct {
 	case "text/plain":
 		d, err := io.ReadAll(part.Body)
