@@ -1,4 +1,4 @@
-package main
+package mail_server
 
 import (
 	"bytes"
@@ -22,10 +22,6 @@ func (bkd *Backend) AnonymousLogin(_ *smtp.ConnectionState) (smtp.Session, error
 
 type Session struct {
 	from, to string
-}
-
-func (s *Session) AuthPlain(username, password string) error {
-	return nil
 }
 
 func (s *Session) Mail(from string, opts smtp.MailOptions) error {
@@ -55,13 +51,13 @@ func (s *Session) Data(r io.Reader) error {
 	rr.Header.Get(subject)
 	buf.WriteString(fmt.Sprintf("from: %s, to: %s\n", s.from, s.to))
 	buf.WriteString(fmt.Sprintf("%s: %s\n", subject, rr.Header.Get(subject)))
-	sendTxtMsg(buf.String())
+	main.sendTxtMsg(buf.String())
 
 	for p, e = rr.NextPart(); e == nil; p, e = rr.NextPart() {
-		sendMsg(newMsg(p))
+		main.sendMsg(main.newMsg(p))
 	}
 	if e != nil && e != io.EOF {
-		logger.Infof("next part err: %s", err)
+		main.logger.Infof("next part err: %s", err)
 	}
 	return nil
 }

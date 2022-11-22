@@ -1,4 +1,4 @@
-package main
+package tg_bot
 
 import (
 	"io"
@@ -14,15 +14,15 @@ var (
 	bot *tgbotapi.BotAPI
 )
 
-func newTGBot() {
+func Init() {
 	var err error
 	bot, err = tgbotapi.NewBotAPI(config.TGBot.Token)
 	if err != nil {
-		panic(err)
+		logger.Fatalf("init tg bot err: %s", err)
 	}
 }
 
-func sendMsg(msg tgbotapi.Chattable) {
+func SendMsg(msg tgbotapi.Chattable) {
 	if msg == nil {
 		return
 	}
@@ -33,12 +33,12 @@ func sendMsg(msg tgbotapi.Chattable) {
 	}
 }
 
-func sendTxtMsg(txt string) {
+func SendTxtMsg(txt string) {
 	msg := tgbotapi.NewMessage(config.TGBot.ChatID, txt)
-	sendMsg(msg)
+	SendMsg(msg)
 }
 
-func newMsg(part *mail.Part) (c tgbotapi.Chattable) {
+func NewMsg(part *mail.Part) (c tgbotapi.Chattable) {
 	ct := part.Header.Get("Content-Type")
 	i := strings.Index(ct, ";")
 	if i < 0 {
