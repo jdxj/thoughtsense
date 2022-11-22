@@ -6,6 +6,8 @@ import (
 
 	"github.com/emersion/go-message/mail"
 	tgbotapi "github.com/go-telegram-bot-api/telegram-bot-api/v5"
+
+	"github.com/jdxj/thoughtsense/config"
 )
 
 var (
@@ -14,7 +16,7 @@ var (
 
 func newTGBot() {
 	var err error
-	bot, err = tgbotapi.NewBotAPI(conf.Token)
+	bot, err = tgbotapi.NewBotAPI(config.TGBot.Token)
 	if err != nil {
 		panic(err)
 	}
@@ -32,7 +34,7 @@ func sendMsg(msg tgbotapi.Chattable) {
 }
 
 func sendTxtMsg(txt string) {
-	msg := tgbotapi.NewMessage(conf.ChatID, txt)
+	msg := tgbotapi.NewMessage(config.TGBot.ChatID, txt)
 	sendMsg(msg)
 }
 
@@ -50,7 +52,7 @@ func newMsg(part *mail.Part) (c tgbotapi.Chattable) {
 			logger.Errorf("read text/plain err: %s", err)
 			return
 		}
-		c = tgbotapi.NewMessage(conf.ChatID, string(d))
+		c = tgbotapi.NewMessage(config.TGBot.ChatID, string(d))
 
 	case "text/html":
 		d, err := io.ReadAll(part.Body)
@@ -58,7 +60,7 @@ func newMsg(part *mail.Part) (c tgbotapi.Chattable) {
 			logger.Errorf("read text/html err: %s", err)
 			return
 		}
-		msg := tgbotapi.NewMessage(conf.ChatID, string(d))
+		msg := tgbotapi.NewMessage(config.TGBot.ChatID, string(d))
 		msg.ParseMode = "HTML"
 		return msg
 
@@ -70,7 +72,7 @@ func newMsg(part *mail.Part) (c tgbotapi.Chattable) {
 				logger.Warnf("get filename err: %s", err)
 			}
 
-			c = tgbotapi.NewDocument(conf.ChatID, tgbotapi.FileReader{
+			c = tgbotapi.NewDocument(config.TGBot.ChatID, tgbotapi.FileReader{
 				Name:   filename,
 				Reader: part.Body,
 			})
