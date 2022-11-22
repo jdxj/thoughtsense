@@ -15,7 +15,7 @@ func TestReadConfig(t *testing.T) {
 	fmt.Printf("wd: %s\n", wd)
 
 	path := filepath.Join(wd, "conf.yaml")
-	err = ReadConfig(path)
+	err = Init(path)
 	if err != nil {
 		fmt.Printf("%s\n", err)
 	}

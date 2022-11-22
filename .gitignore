@@ -15,7 +15,6 @@
 # vendor/
 
 .idea/
-config/conf.yaml
 
 deploy/conf.yaml
 deploy/kube_config.yaml

@@ -39,11 +39,14 @@ func SendTxtMsg(txt string) {
 }
 
 func NewMsg(part *mail.Part) (c tgbotapi.Chattable) {
+	logger.Debugf("part header: %v", part.Header)
+
 	ct := part.Header.Get("Content-Type")
 	i := strings.Index(ct, ";")
 	if i < 0 {
 		return
 	}
+
 	ct = ct[:i]
 	switch ct {
 	case "text/plain":
@@ -62,7 +65,7 @@ func NewMsg(part *mail.Part) (c tgbotapi.Chattable) {
 		}
 		msg := tgbotapi.NewMessage(config.TGBot.ChatID, string(d))
 		msg.ParseMode = "HTML"
-		return msg
+		c = msg
 
 	case "application/octet-stream":
 		switch h := part.Header.(type) {
@@ -70,13 +73,20 @@ func NewMsg(part *mail.Part) (c tgbotapi.Chattable) {
 			filename, err := h.Filename()
 			if err != nil {
 				logger.Warnf("get filename err: %s", err)
+				return
 			}
 
 			c = tgbotapi.NewDocument(config.TGBot.ChatID, tgbotapi.FileReader{
 				Name:   filename,
 				Reader: part.Body,
 			})
+
+		default:
+			logger.Warnf("part header %T founded", h)
 		}
+
+	default:
+		logger.Warnf("%s not handle", ct)
 	}
 	return
 }

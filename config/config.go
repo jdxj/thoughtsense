@@ -31,7 +31,7 @@ type config struct {
 	SMTP  *smtp  `yaml:"smtp"`
 }
 
-func ReadConfig(path string) error {
+func Init(path string) error {
 	f, err := os.Open(path)
 	if err != nil {
 		return err

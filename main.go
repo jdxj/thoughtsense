@@ -3,12 +3,12 @@ package main
 import (
 	"flag"
 	"fmt"
-	"log"
 	"time"
 
 	"github.com/emersion/go-smtp"
 
 	"github.com/jdxj/thoughtsense/config"
+	mail_server "github.com/jdxj/thoughtsense/mail-server"
 )
 
 var (
@@ -18,14 +18,14 @@ var (
 func main() {
 	flag.Parse()
 
-	err := config.ReadConfig(*conf)
+	err := config.Init(*conf)
 	if err != nil {
 		logger.Fatalf("read config err: %s", err)
 	}
 
-	newTGBot()
+	tg_bot.newTGBot()
 
-	s := smtp.NewServer(&Backend{})
+	s := smtp.NewServer(&mail_server.Backend{})
 	s.Addr = fmt.Sprintf(":%d", config.SMTP.Port)
 	s.Domain = config.SMTP.Domain
 	s.ReadTimeout = 10 * time.Second
@@ -34,8 +34,8 @@ func main() {
 	s.MaxRecipients = 50
 	s.AllowInsecureAuth = true
 
-	log.Println("Starting server at", s.Addr)
+	logger.Infof("Starting server at: %s", s.Addr)
 	if err := s.ListenAndServe(); err != nil {
-		log.Fatal(err)
+		logger.Fatalf("listen and serve err: %s", err)
 	}
 }
