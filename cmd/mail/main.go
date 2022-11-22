@@ -8,7 +8,8 @@ import (
 	"github.com/emersion/go-smtp"
 
 	"github.com/jdxj/thoughtsense/config"
-	mail_server "github.com/jdxj/thoughtsense/mail-server"
+	ms "github.com/jdxj/thoughtsense/mail-server"
+	tgBot "github.com/jdxj/thoughtsense/tg-bot"
 )
 
 var (
@@ -22,10 +23,9 @@ func main() {
 	if err != nil {
 		logger.Fatalf("read config err: %s", err)
 	}
+	tgBot.Init()
 
-	tg_bot.newTGBot()
-
-	s := smtp.NewServer(&mail_server.Backend{})
+	s := smtp.NewServer(&ms.Backend{})
 	s.Addr = fmt.Sprintf(":%d", config.SMTP.Port)
 	s.Domain = config.SMTP.Domain
 	s.ReadTimeout = 10 * time.Second
