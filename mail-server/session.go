@@ -51,10 +51,7 @@ func (s *Session) Data(r io.Reader) error {
 	tgBot.SendTxtMsg(buf.String())
 
 	for p, e = rr.NextPart(); e == nil; p, e = rr.NextPart() {
-		msg := tgBot.NewMsg(p)
-		if msg != nil {
-			tgBot.SendMsg(msg)
-		}
+		tgBot.SendMsg(tgBot.NewMsg(p))
 	}
 	if e != nil && e != io.EOF {
 		logger.Infof("next part err: %s", err)

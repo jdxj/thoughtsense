@@ -30,7 +30,7 @@ func main() {
 	s.Domain = config.SMTP.Domain
 	s.ReadTimeout = 10 * time.Second
 	s.WriteTimeout = 10 * time.Second
-	s.MaxMessageBytes = 1024 * 1024
+	s.MaxMessageBytes = 1024 * 1024 * 50 // 50MB
 	s.MaxRecipients = 50
 	s.AllowInsecureAuth = true
 
