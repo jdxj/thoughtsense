@@ -25,7 +25,8 @@ func Init() {
 	bot.Debug = true
 
 	link := fmt.Sprintf("https://%s:443/%s", config.TGBot.Domain, config.TGBot.Token)
-	wc, err := tgbotapi.NewWebhookWithCert(link, tgbotapi.FilePath(config.TGBot.Cert))
+	// wc, err := tgbotapi.NewWebhookWithCert(link, tgbotapi.FilePath(config.TGBot.Cert))
+	wc, err := tgbotapi.NewWebhook(link)
 	if err != nil {
 		logger.Fatalf("new web hook err: %s", err)
 	}
@@ -53,9 +54,7 @@ func Init() {
 	go func() {
 		logger.Debugf("get updates")
 		for update := range updates {
-			if update.Message != nil {
-				logger.Debugf("%+v\n", update.Message.Text)
-			}
+			logger.Debugf("%+v\n", update)
 		}
 	}()
 }
