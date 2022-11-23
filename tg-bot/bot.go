@@ -42,6 +42,7 @@ func Init() {
 		logger.Warnf("telegram callback failed: %s", wi.LastErrorMessage)
 	}
 
+	updates := bot.ListenForWebhook(fmt.Sprintf("/%s", bot.Token))
 	go func() {
 		err := http.ListenAndServe(fmt.Sprintf(":%d", config.TGBot.Port), nil)
 		if err != nil {
@@ -50,7 +51,6 @@ func Init() {
 	}()
 
 	go func() {
-		updates := bot.ListenForWebhook(fmt.Sprintf("/%s", bot.Token))
 		for update := range updates {
 			logger.Debugf("%+v\n", update)
 		}
