@@ -1,7 +1,9 @@
 package tg_bot
 
 import (
+	"fmt"
 	"io"
+	"net/http"
 	"strings"
 
 	"github.com/emersion/go-message/mail"
@@ -20,6 +22,39 @@ func Init() {
 	if err != nil {
 		logger.Fatalf("init tg bot err: %s", err)
 	}
+	bot.Debug = true
+
+	link := fmt.Sprintf("https://%s:443/%s", config.TGBot.Domain, config.TGBot.Token)
+	wc, err := tgbotapi.NewWebhookWithCert(link, tgbotapi.FilePath(config.TGBot.Cert))
+	if err != nil {
+		logger.Fatalf("new web hook err: %s", err)
+	}
+	_, err = bot.Request(wc)
+	if err != nil {
+		logger.Fatalf("send web hook req err: %s", err)
+	}
+
+	wi, err := bot.GetWebhookInfo()
+	if err != nil {
+		logger.Fatalf("get web hook info err: %s", err)
+	}
+	if wi.LastErrorDate != 0 {
+		logger.Warnf("telegram callback failed: %s", wi.LastErrorMessage)
+	}
+
+	go func() {
+		err := http.ListenAndServe(fmt.Sprintf(":%d", config.TGBot.Port), nil)
+		if err != nil {
+			logger.Errorf("listen and serve err: %s", err)
+		}
+	}()
+
+	go func() {
+		updates := bot.ListenForWebhook(fmt.Sprintf("/%s", bot.Token))
+		for update := range updates {
+			logger.Debugf("%+v\n", update)
+		}
+	}()
 }
 
 func SendMsg(msg tgbotapi.Chattable) {

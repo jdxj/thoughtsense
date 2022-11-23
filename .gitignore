@@ -18,3 +18,4 @@
 
 deploy/conf.yaml
 deploy/kube_config.yaml
+deploy/cert.pem

@@ -1,5 +1,6 @@
 KUBE_CONFIG := --kubeconfig=$(DEPLOY)/kube_config.yaml
 NAMESPACE := thoughtsense
+FROM_FILE := --from-file=$(DEPLOY)/conf.yaml --from-file=$(DEPLOY)/cert.pem
 
 .PHONY: k8s.create.ns
 k8s.create.ns:
@@ -7,7 +8,7 @@ k8s.create.ns:
 
 .PHONY: k8s.create.secret
 k8s.create.secret:
-	@kubectl $(KUBE_CONFIG) -n $(NAMESPACE) create secret generic $(NAMESPACE)-conf --from-file=$(DEPLOY)/conf.yaml
+	@kubectl $(KUBE_CONFIG) -n $(NAMESPACE) create secret generic $(NAMESPACE)-conf $(FROM_FILE)
 
 .PHONY: k8s.create.deploy
 k8s.create.deploy:
@@ -25,7 +26,7 @@ k8s.set.image:
 k8s.apply.secret:
 	@kubectl $(KUBE_CONFIG) -n $(NAMESPACE) scale deployment $(NAMESPACE)-dep --replicas=0
 	@kubectl $(KUBE_CONFIG) -n $(NAMESPACE) delete secrets $(NAMESPACE)-conf
-	@kubectl $(KUBE_CONFIG) -n $(NAMESPACE) create secret generic $(NAMESPACE)-conf --from-file=$(DEPLOY)/conf.yaml
+	@kubectl $(KUBE_CONFIG) -n $(NAMESPACE) create secret generic $(NAMESPACE)-conf $(FROM_FILE)
 	@kubectl $(KUBE_CONFIG) -n $(NAMESPACE) scale deployment $(NAMESPACE)-dep --replicas=1
 
 .PHONY: k8s.scale.%

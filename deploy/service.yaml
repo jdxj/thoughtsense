@@ -5,8 +5,13 @@ metadata:
 spec:
   type: NodePort
   ports:
-    - port: 30082
+    - name: mail
+      port: 30082
       targetPort: 30082
       nodePort: 30082
+    - name: tg
+      port: 30084
+      targetPort: 30084
+      nodePort: 30084
   selector:
     app: thoughtsense

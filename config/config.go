@@ -19,6 +19,9 @@ var (
 type tgBot struct {
 	Token  string `yaml:"token"`
 	ChatID int64  `yaml:"chat_id"`
+	Cert   string `yaml:"cert"`
+	Domain string `yaml:"domain"`
+	Port   int    `yaml:"port"`
 }
 
 type smtp struct {
