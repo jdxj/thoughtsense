@@ -1,6 +1,7 @@
 package tg_bot
 
 import (
+	"flag"
 	"fmt"
 	"io"
 	"net/http"
@@ -14,9 +15,13 @@ import (
 
 var (
 	bot *tgbotapi.BotAPI
+
+	cmdSet = flag.NewFlagSet("hello", flag.ExitOnError)
+	name   = cmdSet.String("name", "", "")
 )
 
 func Init() {
+
 	var err error
 	bot, err = tgbotapi.NewBotAPI(config.TGBot.Token)
 	if err != nil {
@@ -55,7 +60,25 @@ func Init() {
 		logger.Debugf("get updates")
 		for update := range updates {
 			if msg := update.Message; msg != nil {
-				logger.Debugf("%+v\n", msg)
+				cmdLine := strings.Split(msg.Text, " ")
+				if len(cmdLine) < 2 {
+					continue
+				}
+
+				err := cmdSet.Parse(cmdLine[1:])
+				if err != nil {
+					logger.Errorf("parse cmd line err: %s", err)
+					continue
+				}
+
+				reply := tgbotapi.NewMessage(msg.Chat.ID, fmt.Sprintf("hello %s", *name))
+				reply.ReplyToMessageID = msg.MessageID
+
+				_, err = bot.Send(reply)
+				if err != nil {
+					logger.Errorf("send cmd %s rsp err: %s", cmdLine[0], err)
+					continue
+				}
 			}
 		}
 	}()
