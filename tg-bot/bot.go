@@ -54,7 +54,9 @@ func Init() {
 	go func() {
 		logger.Debugf("get updates")
 		for update := range updates {
-			logger.Debugf("%+v\n", update)
+			if msg := update.Message; msg != nil {
+				logger.Debugf("%+v\n", msg)
+			}
 		}
 	}()
 }
